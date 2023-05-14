@@ -26,6 +26,8 @@ class MemberService(
     fun isEnabledMember(email: String) = memberRepository.findByEmail(email)!!.isEnabled
     fun checkPassword(email: String, password: String) = passwordEncoder.matches(password, memberRepository.findByEmail(email)!!.password)
 
+    fun findByNickname(email: String) = memberRepository.findByNickname(email)
+
     fun signup(signupDto: SignupDto) {
         mailService.sendEmailForm(signupDto.email, signupDto.nickname)
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")

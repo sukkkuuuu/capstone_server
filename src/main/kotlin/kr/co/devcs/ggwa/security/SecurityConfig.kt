@@ -27,7 +27,7 @@ class SecurityConfig(
         http.csrf().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .authorizeHttpRequests().requestMatchers("/api/member/auth").authenticated()
+            .authorizeHttpRequests().requestMatchers("/api/member/profile/**").authenticated()
             .anyRequest().permitAll()
             .and()
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
