@@ -1,5 +1,7 @@
 package kr.co.devcs.ggwa.service
 
+import jakarta.transaction.Transactional
+import kr.co.devcs.ggwa.dto.ProfileUpdateDto
 import kr.co.devcs.ggwa.dto.SigninDto
 import kr.co.devcs.ggwa.dto.SignupDto
 import kr.co.devcs.ggwa.entity.Member
@@ -28,6 +30,7 @@ class MemberService(
 
     fun findByNickname(email: String) = memberRepository.findByNickname(email)
 
+    @Transactional
     fun signup(signupDto: SignupDto) {
         mailService.sendEmailForm(signupDto.email, signupDto.nickname)
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -42,6 +45,20 @@ class MemberService(
 
     fun signin(signinDto: SigninDto) = jwtUtils.createToken(signinDto.email)
 
+    @Transactional
+    fun update(profileUpdateDto: ProfileUpdateDto) {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val member = memberRepository.findByEmail(profileUpdateDto.email)!!
+        member.sno = profileUpdateDto.sno ?: member.sno
+        member.nickname = profileUpdateDto.nickname ?: member.nickname
+        member.birthDate = LocalDate.parse(profileUpdateDto.birthDate ?: member.birthDate.toString(), formatter)
+        memberRepository.save(member)
+    }
+
+    fun delete(email: String) {
+        val member = memberRepository.findByEmail(email)
+        memberRepository.delete(member!!)
+    }
 
     fun activate(email: String, authCode: String): Boolean {
         if(mailService.isValidEmailCode(email, authCode)) {

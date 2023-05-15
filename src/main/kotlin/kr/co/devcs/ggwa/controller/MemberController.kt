@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -66,15 +67,25 @@ class MemberController(
                 "email" to member.email, "nickname" to member.nickname, "sno" to member.sno,
                 "birthDate" to member.birthDate.toString(), "createDate" to member.createdDate.toString()
         ), mutableListOf()))
-
     }
 
     @PatchMapping("/profile/update")
     fun update(@RequestBody @Validated profileUpdateDto: ProfileUpdateDto, bindingResult: BindingResult): ResponseEntity<MemberResponse> {
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), fieldErrors(bindingResult)))
+        if (!memberService.checkEmailDuplication(profileUpdateDto.email)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("수정 대상을 찾을 수 없습니다.")))
         val memberDetailts: MemberDetails = SecurityContextHolder.getContext().authentication.principal as MemberDetails
-        println(memberDetailts.username)
-        return ResponseEntity.ok().body(MemberResponse(mutableMapOf(), mutableListOf()))
+        if (memberDetailts.username != profileUpdateDto.email) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("수정 권한이 없습니다.")))
+        memberService.update(profileUpdateDto)
+        return ResponseEntity.ok().body(MemberResponse(mutableMapOf("success" to "true"), mutableListOf()))
+    }
+
+    @DeleteMapping("/profile/delete")
+    fun delete(email:String): ResponseEntity<MemberResponse> {
+        if (!memberService.checkEmailDuplication(email)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("삭제 대상을 찾을 수 없습니다.")))
+        val memberDetails: MemberDetails = SecurityContextHolder.getContext().authentication.principal as MemberDetails
+        if (memberDetails.username != email) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("삭제 권한이 없습니다.")))
+        memberService.delete(email)
+        return ResponseEntity.ok().body(MemberResponse(mutableMapOf("success" to "true"), mutableListOf()))
     }
 
 
