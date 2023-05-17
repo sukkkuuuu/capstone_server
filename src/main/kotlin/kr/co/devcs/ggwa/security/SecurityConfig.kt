@@ -3,6 +3,7 @@ package kr.co.devcs.ggwa.security
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -27,7 +28,9 @@ class SecurityConfig(
         http.csrf().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .authorizeHttpRequests().requestMatchers("/api/member/profile/update", "/api/member/profile/delete").authenticated()
+            .authorizeHttpRequests()
+            .requestMatchers(HttpMethod.PATCH, "/api/member/profile/update").authenticated()
+            .requestMatchers(HttpMethod.DELETE, "/api/member/profile/delete").authenticated()
             .anyRequest().permitAll()
             .and()
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
