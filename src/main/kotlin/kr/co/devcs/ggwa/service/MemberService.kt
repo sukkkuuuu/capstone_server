@@ -5,7 +5,9 @@ import kr.co.devcs.ggwa.dto.ProfileUpdateDto
 import kr.co.devcs.ggwa.dto.SigninDto
 import kr.co.devcs.ggwa.dto.SignupDto
 import kr.co.devcs.ggwa.entity.Member
+import kr.co.devcs.ggwa.entity.University
 import kr.co.devcs.ggwa.repository.MemberRepository
+import kr.co.devcs.ggwa.repository.UniversityRepository
 import kr.co.devcs.ggwa.util.JwtUtils
 import kr.co.devcs.ggwa.util.MailService
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +20,7 @@ import java.time.format.DateTimeFormatter
 @Service
 class MemberService(
     @Autowired private val memberRepository: MemberRepository,
+    @Autowired private val universityService: UniversityService,
     @Autowired private val mailService: MailService,
     @Autowired private val jwtUtils: JwtUtils,
     @Autowired private val passwordEncoder: PasswordEncoder
@@ -32,14 +35,17 @@ class MemberService(
 
     @Transactional
     fun signup(signupDto: SignupDto) {
-        mailService.sendEmailForm(signupDto.email, signupDto.nickname)
+//        mailService.sendEmailForm(signupDto.email, signupDto.nickname)
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val university = universityService.findByName(signupDto.universityName)
         memberRepository.save(Member(
             sno = signupDto.sno,
             email = signupDto.email,
             nickname = signupDto.nickname,
             password = passwordEncoder.encode(signupDto.password1),
-            birthDate = LocalDate.parse(signupDto.birthDate, formatter)
+            birthDate = LocalDate.parse(signupDto.birthDate, formatter),
+            university = university!!,
+            isEnabled = true
         ))
     }
 
