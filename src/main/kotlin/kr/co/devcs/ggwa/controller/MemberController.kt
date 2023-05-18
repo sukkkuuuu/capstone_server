@@ -5,6 +5,7 @@ import kr.co.devcs.ggwa.dto.ProfileUpdateDto
 import kr.co.devcs.ggwa.dto.SigninDto
 import kr.co.devcs.ggwa.dto.SignupDto
 import kr.co.devcs.ggwa.entity.Member
+import kr.co.devcs.ggwa.response.MemberResponse
 import kr.co.devcs.ggwa.security.MemberDetails
 import kr.co.devcs.ggwa.service.MemberService
 import kr.co.devcs.ggwa.service.UniversityService
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 
-data class MemberResponse(val data: MutableMap<String, String>, val errors: MutableList<String>)
 
 @RestController
 @RequestMapping("/api/member")

@@ -10,4 +10,5 @@ class UniversityService(
 ) {
     fun isExistName(name: String) = universityRepository.existsByName(name)
     fun findByName(name: String) = universityRepository.findByName(name)
+    fun findAll() = universityRepository.findAll()
 }
