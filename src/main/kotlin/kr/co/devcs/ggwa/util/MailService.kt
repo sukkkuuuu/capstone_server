@@ -31,7 +31,6 @@ class MailService {
             }
         }
         val authCode = key.toString()
-        println("code: $authCode")
         authCodes[email] = AuthCode(authCode)
         return authCode
     }
