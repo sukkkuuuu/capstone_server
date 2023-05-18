@@ -16,4 +16,6 @@ class University(
 
     @Column(unique = true)
     val address: String
-)
+) {
+    override fun toString() = name
+}

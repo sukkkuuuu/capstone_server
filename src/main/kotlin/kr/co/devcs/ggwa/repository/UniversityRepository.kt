@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 interface UniversityRepository: JpaRepository<University, Long> {
     fun findByName(name: String): University?
     fun existsByName(name: String): Boolean
+    override fun findAll(): MutableList<University>
 }

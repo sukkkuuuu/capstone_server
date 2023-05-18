@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 class MemberDetailsService(
     @Autowired private val memberRepository: MemberRepository
 ): UserDetailsService {
-    override fun loadUserByUsername(email: String): UserDetails {
+    override fun loadUserByUsername(email: String): MemberDetails {
         val member: Member? = memberRepository.findByEmail(email) ?: throw UsernameNotFoundException("인증 불가 유저")
         return MemberDetails(member!!.email, member.password, member.isEnabled)
     }
