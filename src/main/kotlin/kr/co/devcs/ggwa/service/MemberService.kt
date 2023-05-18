@@ -6,6 +6,7 @@ import kr.co.devcs.ggwa.dto.SigninDto
 import kr.co.devcs.ggwa.dto.SignupDto
 import kr.co.devcs.ggwa.entity.Member
 import kr.co.devcs.ggwa.entity.University
+import kr.co.devcs.ggwa.repository.AuthorityRepository
 import kr.co.devcs.ggwa.repository.MemberRepository
 import kr.co.devcs.ggwa.repository.UniversityRepository
 import kr.co.devcs.ggwa.util.JwtUtils
@@ -21,6 +22,7 @@ import java.time.format.DateTimeFormatter
 class MemberService(
     @Autowired private val memberRepository: MemberRepository,
     @Autowired private val universityService: UniversityService,
+    @Autowired private val authorityRepository: AuthorityRepository,
     @Autowired private val mailService: MailService,
     @Autowired private val jwtUtils: JwtUtils,
     @Autowired private val passwordEncoder: PasswordEncoder
@@ -35,25 +37,27 @@ class MemberService(
 
     @Transactional
     fun signup(signupDto: SignupDto) {
-        mailService.sendEmailForm(signupDto.email, signupDto.nickname)
+        mailService.sendEmailForm(signupDto.email!!, signupDto.nickname!!)
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val university = universityService.findByName(signupDto.universityName)
+        val university = universityService.findByName(signupDto.universityName!!)
+        val authority = authorityRepository.findByName("ROLE_USER") ?: throw Exception("ROLE_USER 테이블 확인해보세요.")
         memberRepository.save(Member(
-            sno = signupDto.sno,
-            email = signupDto.email,
-            nickname = signupDto.nickname,
+            sno = signupDto.sno!!,
+            email = signupDto.email!!,
+            nickname = signupDto.nickname!!,
             password = passwordEncoder.encode(signupDto.password1),
             birthDate = LocalDate.parse(signupDto.birthDate, formatter),
-            university = university!!
+            university = university!!,
+            authorites = mutableSetOf(authority)
         ))
     }
 
-    fun signin(signinDto: SigninDto) = jwtUtils.createToken(signinDto.email)
+    fun signin(signinDto: SigninDto) = jwtUtils.createToken(signinDto.email!!)
 
     @Transactional
     fun update(profileUpdateDto: ProfileUpdateDto) {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val member = memberRepository.findByEmail(profileUpdateDto.email)!!
+        val member = memberRepository.findByEmail(profileUpdateDto.email!!)!!
         member.sno = profileUpdateDto.sno ?: member.sno
         member.nickname = profileUpdateDto.nickname ?: member.nickname
         member.birthDate = LocalDate.parse(profileUpdateDto.birthDate ?: member.birthDate.toString(), formatter)
@@ -67,7 +71,7 @@ class MemberService(
 
     fun activate(email: String, authCode: String): Boolean {
         if(mailService.isValidEmailCode(email, authCode)) {
-            val member: Member? = memberRepository.findByEmail(email) ?: throw UsernameNotFoundException("인증 정보 오류")
+            val member: Member = memberRepository.findByEmail(email) ?: throw UsernameNotFoundException("인증 정보 오류")
             member!!.isEnabled = true
             memberRepository.save(member)
             return true

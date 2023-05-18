@@ -31,6 +31,7 @@ class SecurityConfig(
             .authorizeHttpRequests()
             .requestMatchers(HttpMethod.PATCH, "/api/member/profile/update").authenticated()
             .requestMatchers(HttpMethod.DELETE, "/api/member/profile/delete").authenticated()
+            .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
             .anyRequest().permitAll()
             .and()
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
