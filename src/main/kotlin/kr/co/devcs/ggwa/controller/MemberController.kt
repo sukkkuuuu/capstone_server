@@ -38,10 +38,10 @@ class MemberController(
     fun signup(@RequestBody(required = false) @Validated signupDto: SignupDto?, bindingResult: BindingResult): ResponseEntity<MemberResponse> {
         if (signupDto == null) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("Body에 데이터가 없습니다.")))
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), fieldErrors(bindingResult)))
-        if (memberService.checkEmailDuplication(signupDto.email)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("이미 있는 이메일입니다.")))
-        if (memberService.checkNicknameDuplication(signupDto.nickname)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("이미 있는 닉네임입니다.")))
-        if (!memberService.confirmPassword(signupDto.password1, signupDto.password2)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("비밀번호와 확인 비밀번호가 일치하지 않습니다.")))
-        if (!universityService.isExistName(signupDto.universityName)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("학교 정보가 올바르지 않습니다.")))
+        if (memberService.checkEmailDuplication(signupDto.email!!)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("이미 있는 이메일입니다.")))
+        if (memberService.checkNicknameDuplication(signupDto.nickname!!)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("이미 있는 닉네임입니다.")))
+        if (!memberService.confirmPassword(signupDto.password1!!, signupDto.password2!!)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("비밀번호와 확인 비밀번호가 일치하지 않습니다.")))
+        if (!universityService.isExistName(signupDto.universityName!!)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("학교 정보가 올바르지 않습니다.")))
         memberService.signup(signupDto)
         return ResponseEntity.ok().body(MemberResponse(mutableMapOf("success" to "true"), mutableListOf()))
     }
@@ -50,16 +50,16 @@ class MemberController(
     fun validAuthCode(@RequestBody(required = false) @Validated authCodeDto: AuthCodeDto?, bindingResult: BindingResult): ResponseEntity<MemberResponse> {
         if (authCodeDto == null) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("Body에 데이터가 없습니다.")))
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), fieldErrors(bindingResult)))
-        if(!memberService.activate(authCodeDto.email, authCodeDto.authCode)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("인증 코드가 만료되었거나 일치하지 않습니다.")))
+        if(!memberService.activate(authCodeDto.email!!, authCodeDto.authCode!!)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("인증 코드가 만료되었거나 일치하지 않습니다.")))
         return ResponseEntity.ok().body(MemberResponse(mutableMapOf("success" to "true"), mutableListOf()))
     }
 
     @PostMapping("/signin")
-    fun signin(@RequestBody(required = false) @Validated signinDto: SigninDto?, bindingResult: BindingResult): ResponseEntity<MemberResponse> {
+    fun signin(@RequestBody @Validated signinDto: SigninDto?, bindingResult: BindingResult): ResponseEntity<MemberResponse> {
         if (signinDto == null) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("Body에 데이터가 없습니다.")))
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), fieldErrors(bindingResult)))
-        if (!memberService.checkEmailDuplication(signinDto.email)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("가입되지 않은 이메일입니다.")))
-        if (!memberService.checkPassword(signinDto.email, signinDto.password)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("정확하지 않은 패스워드입니다.")))
+        if (!memberService.checkEmailDuplication(signinDto.email!!)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("가입되지 않은 이메일입니다.")))
+        if (!memberService.checkPassword(signinDto.email, signinDto.password!!)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("정확하지 않은 패스워드입니다.")))
         if (!memberService.isEnabledMember(signinDto.email)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("이메일 인증이 안된 계정입니다.")))
         val token = memberService.signin(signinDto)
         return ResponseEntity.ok().body(MemberResponse(mutableMapOf("jwt" to "$token"), mutableListOf()))
@@ -80,7 +80,7 @@ class MemberController(
     fun update(@RequestBody(required = false) @Validated profileUpdateDto: ProfileUpdateDto?, bindingResult: BindingResult): ResponseEntity<MemberResponse> {
         if (profileUpdateDto == null) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("Body에 데이터가 없습니다.")))
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), fieldErrors(bindingResult)))
-        if (!memberService.checkEmailDuplication(profileUpdateDto.email)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("수정 대상을 찾을 수 없습니다.")))
+        if (!memberService.checkEmailDuplication(profileUpdateDto.email!!)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("수정 대상을 찾을 수 없습니다.")))
         val memberDetailts: MemberDetails = SecurityContextHolder.getContext().authentication.principal as MemberDetails
         if (memberDetailts.username != profileUpdateDto.email) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("수정 권한이 없습니다.")))
         memberService.update(profileUpdateDto)

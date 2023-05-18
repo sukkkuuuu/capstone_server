@@ -15,7 +15,7 @@ class JwtFilter(
 ): OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         println("jwt Filter 가동")
-        val authorization: String? = request.getHeader("Authorization") ?: return filterChain.doFilter(request, response)
+        val authorization: String = request.getHeader("Authorization") ?: return filterChain.doFilter(request, response)
         val token = authorization?.substring("Bearer ".length) ?: return filterChain.doFilter(request, response)
         println(token)
         if (jwtUtils.validateToken(token)) {
