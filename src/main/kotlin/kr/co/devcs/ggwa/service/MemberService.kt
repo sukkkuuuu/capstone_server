@@ -35,7 +35,7 @@ class MemberService(
 
     @Transactional
     fun signup(signupDto: SignupDto) {
-//        mailService.sendEmailForm(signupDto.email, signupDto.nickname)
+        mailService.sendEmailForm(signupDto.email, signupDto.nickname)
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val university = universityService.findByName(signupDto.universityName)
         memberRepository.save(Member(
@@ -44,8 +44,7 @@ class MemberService(
             nickname = signupDto.nickname,
             password = passwordEncoder.encode(signupDto.password1),
             birthDate = LocalDate.parse(signupDto.birthDate, formatter),
-            university = university!!,
-            isEnabled = true
+            university = university!!
         ))
     }
 
