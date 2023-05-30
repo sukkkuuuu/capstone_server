@@ -1,6 +1,5 @@
 package kr.co.devcs.ggwa.entity
 
-import jakarta.annotation.Nullable
 import jakarta.persistence.*
 import java.time.LocalDate
 import java.time.LocalDateTime

@@ -15,7 +15,7 @@ import java.util.Date
 class JwtUtils(
     @Autowired private val memberDetailsService: MemberDetailsService
 ) {
-    val EXP_TIME = 1000L * 60 * 3
+    val EXP_TIME = 1000L * 60 * 60
     val SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512)
 
     fun createToken(email: String): String {

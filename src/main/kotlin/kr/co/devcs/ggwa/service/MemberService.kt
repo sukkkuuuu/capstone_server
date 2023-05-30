@@ -34,6 +34,7 @@ class MemberService(
     fun checkPassword(email: String, password: String) = passwordEncoder.matches(password, memberRepository.findByEmail(email)!!.password)
 
     fun findByNickname(email: String) = memberRepository.findByNickname(email)
+    fun findByEmail(email: String) = memberRepository.findByEmail(email)
 
     @Transactional
     fun signup(signupDto: SignupDto) {

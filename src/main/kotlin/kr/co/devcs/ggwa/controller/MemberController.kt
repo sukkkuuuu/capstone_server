@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -30,6 +31,7 @@ import java.security.Principal
 
 @RestController
 @RequestMapping("/api/member")
+@CrossOrigin("*")
 class MemberController(
     @Autowired private val memberService: MemberService,
     @Autowired private val universityService: UniversityService
@@ -83,6 +85,7 @@ class MemberController(
         if (!memberService.checkEmailDuplication(profileUpdateDto.email!!)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("수정 대상을 찾을 수 없습니다.")))
         val memberDetailts: MemberDetails = SecurityContextHolder.getContext().authentication.principal as MemberDetails
         if (memberDetailts.username != profileUpdateDto.email) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("수정 권한이 없습니다.")))
+//        if (memberService.checkNicknameDuplication(profileUpdateDto.nickname!!)) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("이미 있는 닉네임입니다.")))
         memberService.update(profileUpdateDto)
         return ResponseEntity.ok().body(MemberResponse(mutableMapOf("success" to "true"), mutableListOf()))
     }
@@ -97,9 +100,18 @@ class MemberController(
         return ResponseEntity.ok().body(MemberResponse(mutableMapOf("success" to "true"), mutableListOf()))
     }
 
+    @GetMapping("/checkToken")
+    fun checkToken() = "suc"
 
-    @GetMapping("/auth")
-    fun test() = "suc"
+    @GetMapping("/myinfo")
+    fun myinfo(): ResponseEntity<MemberResponse> {
+        val memberDetails: MemberDetails = SecurityContextHolder.getContext().authentication.principal as MemberDetails
+        val member = memberService.findByEmail(memberDetails.username)
+        return ResponseEntity.ok().body(MemberResponse(mutableMapOf(
+                "universityName" to member!!.university.name, "email" to member.email, "nickname" to member.nickname, "sno" to member.sno,
+                "birthDate" to member.birthDate.toString(), "createDate" to member.createdDate.toString()
+        ), mutableListOf()))
+    }
 
     private fun fieldErrors(bindingResult: BindingResult): MutableList<String> {
         val errors = mutableListOf<String>()
