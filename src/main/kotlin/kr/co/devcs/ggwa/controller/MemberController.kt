@@ -36,6 +36,12 @@ class MemberController(
     @Autowired private val memberService: MemberService,
     @Autowired private val universityService: UniversityService
 ) {
+    @GetMapping("/")
+    fun member(): Long {
+        val memberDetails: MemberDetails = SecurityContextHolder.getContext().authentication.principal as MemberDetails
+        val member = memberService.findByEmail(memberDetails.username)
+        return member?.id!!
+    }
     @PostMapping("/signup")
     fun signup(@RequestBody(required = false) @Validated signupDto: SignupDto?, bindingResult: BindingResult): ResponseEntity<MemberResponse> {
         if (signupDto == null) return ResponseEntity.badRequest().body(MemberResponse(mutableMapOf(), mutableListOf("Body에 데이터가 없습니다.")))
@@ -112,6 +118,8 @@ class MemberController(
                 "birthDate" to member.birthDate.toString(), "createDate" to member.createdDate.toString()
         ), mutableListOf()))
     }
+
+
 
     private fun fieldErrors(bindingResult: BindingResult): MutableList<String> {
         val errors = mutableListOf<String>()

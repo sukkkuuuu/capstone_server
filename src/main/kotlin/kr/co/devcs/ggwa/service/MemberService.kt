@@ -38,7 +38,7 @@ class MemberService(
 
     @Transactional
     fun signup(signupDto: SignupDto) {
-        mailService.sendEmailForm(signupDto.email!!, signupDto.nickname!!)
+//        mailService.sendEmailForm(signupDto.email!!, signupDto.nickname!!)
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val university = universityService.findByName(signupDto.universityName!!)
         val authority = authorityRepository.findByName("ROLE_USER") ?: throw Exception("ROLE_USER 테이블 확인해보세요.")
@@ -49,7 +49,8 @@ class MemberService(
             password = passwordEncoder.encode(signupDto.password1),
             birthDate = LocalDate.parse(signupDto.birthDate, formatter),
             university = university!!,
-            authorites = mutableSetOf(authority)
+            authorites = mutableSetOf(authority),
+            isEnabled = true
         ))
     }
 
