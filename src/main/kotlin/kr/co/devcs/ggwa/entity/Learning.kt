@@ -11,5 +11,6 @@ class Learning(
     val intro: String,
     val createdDate: LocalDateTime = LocalDateTime.now(),
     @ManyToOne
-    val writer: Member
+    val writer: Member,
+    val address: String
 )

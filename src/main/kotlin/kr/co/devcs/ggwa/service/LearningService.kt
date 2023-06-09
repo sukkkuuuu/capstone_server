@@ -22,7 +22,7 @@ class LearningService(
     }
 
     fun create(learningDto: LearningDto, writer: Member) {
-        learningRepository.save(Learning(title = learningDto.title!!, intro = learningDto.intro!!, writer = writer))
+        learningRepository.save(Learning(title = learningDto.title!!, intro = learningDto.intro!!, writer = writer, address = learningDto.address!!))
     }
 
     fun delete(id: Long) {

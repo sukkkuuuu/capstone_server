@@ -63,7 +63,6 @@ class LearningController(
             return ResponseEntity.ok().body(LearningDetailResponse(mutableMapOf(), mutableListOf()))
         }
         return ResponseEntity.badRequest().body(LearningDetailResponse(mutableMapOf(), mutableListOf("접근 권한이 없습니다.")))
-
     }
 
     private fun fieldErrors(bindingResult: BindingResult): MutableList<String> {

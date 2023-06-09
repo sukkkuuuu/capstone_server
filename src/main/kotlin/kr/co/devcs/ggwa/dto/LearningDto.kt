@@ -9,5 +9,8 @@ data class LearningDto(
     val title: String? = null,
     @field:NotNull(message = "소개는 필수 항목입니다.")
     @field:NotBlank(message = "소개는 필수 항목입니다.")
-    val intro: String? = null
+    val intro: String? = null,
+    @field:NotNull(message = "소개는 필수 항목입니다.")
+    @field:NotBlank(message = "소개는 필수 항목입니다.")
+    val address: String? = null
 )
