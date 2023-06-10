@@ -4,28 +4,26 @@ import kr.co.devcs.ggwa.dto.AuthCodeDto
 import kr.co.devcs.ggwa.dto.ProfileUpdateDto
 import kr.co.devcs.ggwa.dto.SigninDto
 import kr.co.devcs.ggwa.dto.SignupDto
+import kr.co.devcs.ggwa.entity.Learning
+import kr.co.devcs.ggwa.entity.Meeting
 import kr.co.devcs.ggwa.entity.Member
+import kr.co.devcs.ggwa.response.MeetingResponse
 import kr.co.devcs.ggwa.response.MemberResponse
 import kr.co.devcs.ggwa.security.MemberDetails
+import kr.co.devcs.ggwa.service.LearningService
+import kr.co.devcs.ggwa.service.MeetingService
 import kr.co.devcs.ggwa.service.MemberService
 import kr.co.devcs.ggwa.service.UniversityService
 import kr.co.devcs.ggwa.util.MailService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.security.Principal
 
 
@@ -34,7 +32,9 @@ import java.security.Principal
 @CrossOrigin("*")
 class MemberController(
     @Autowired private val memberService: MemberService,
-    @Autowired private val universityService: UniversityService
+    @Autowired private val universityService: UniversityService,
+    @Autowired private val meetingService: MeetingService,
+    @Autowired private val learningService: LearningService
 ) {
     @GetMapping("/")
     fun member(): Long {
@@ -110,13 +110,35 @@ class MemberController(
     fun checkToken() = "suc"
 
     @GetMapping("/myinfo")
-    fun myinfo(): ResponseEntity<MemberResponse> {
+    fun myInfo(): ResponseEntity<MemberResponse> {
         val memberDetails: MemberDetails = SecurityContextHolder.getContext().authentication.principal as MemberDetails
         val member = memberService.findByEmail(memberDetails.username)
         return ResponseEntity.ok().body(MemberResponse(mutableMapOf(
                 "universityName" to member!!.university.name, "email" to member.email, "nickname" to member.nickname, "sno" to member.sno,
                 "birthDate" to member.birthDate.toString(), "createDate" to member.createdDate.toString()
         ), mutableListOf()))
+    }
+
+    @GetMapping("/mypost/meeting")
+    fun myPostMeeting(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "id") sort: String,
+        @RequestParam(defaultValue = "asc") order: String
+    ): Page<Meeting> {
+        val memberDetails: MemberDetails = SecurityContextHolder.getContext().authentication.principal as MemberDetails
+        val member = memberService.findByEmail(memberDetails.username)
+        return meetingService.findByWriter(member!!, page, sort, order)
+    }
+
+    @GetMapping("/mypost/learning")
+    fun myPostLearning(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "id") sort: String,
+        @RequestParam(defaultValue = "asc") order: String
+    ): Page<Learning> {
+        val memberDetails: MemberDetails = SecurityContextHolder.getContext().authentication.principal as MemberDetails
+        val member = memberService.findByEmail(memberDetails.username)
+        return learningService.findByWriter(member!!, page, sort, order)
     }
 
 

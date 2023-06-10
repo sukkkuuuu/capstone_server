@@ -31,6 +31,11 @@ class MeetingService(
         return meetingRepository.findAll(pageable)
     }
 
+    fun findByWriter(writer: Member, page: Int, sort: String, order: String): Page<Meeting> {
+        val pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE, Sort.by(if(order == "asc") Sort.Direction.ASC else Sort.Direction.DESC, sort))
+        return meetingRepository.findByWriter(writer, pageable)
+    }
+
     fun checkById(id: Long) = meetingRepository.existsById(id)
 
     fun findById(id: Long): Meeting{

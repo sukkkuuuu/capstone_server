@@ -39,6 +39,11 @@ class LearningService(
         return learningRepository.findAll(pageable)
     }
 
+    fun findByWriter(writer: Member, page: Int, sort: String, order: String): Page<Learning> {
+        val pageable = PageRequest.of(page,
+            LearningService.DEFAULT_PAGE_SIZE, Sort.by(if(order == "asc") Sort.Direction.ASC else Sort.Direction.DESC, sort))
+        return learningRepository.findByWriter(writer, pageable)
+    }
     fun checkById(id: Long) = learningRepository.existsById(id)
 
     fun findById(id: Long): Learning {
