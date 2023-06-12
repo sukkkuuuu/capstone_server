@@ -10,6 +10,7 @@ import kr.co.devcs.ggwa.service.MemberService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -39,6 +40,17 @@ class CommentController(
         val member = memberService.findByEmail(memberDetails.username)
         val meeting = meetingService.findById(meeting_id)
         commentService.create(meeting, member!!, commentDto.content)
+        return ResponseEntity.ok().body(CommentResponse(mutableListOf(), mutableListOf()))
+    }
+
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: Long): ResponseEntity<CommentResponse>{
+        if(!commentService.checkById(id)) return ResponseEntity.badRequest().body(CommentResponse(mutableListOf(), mutableListOf("비정상적인 접근입니다.")))
+        val memberDetails: MemberDetails = SecurityContextHolder.getContext().authentication.principal as MemberDetails
+        val member = memberService.findByEmail(memberDetails.username)
+        val comment = commentService.findById(id)
+        if(comment.get().member != member) return ResponseEntity.badRequest().body(CommentResponse(mutableListOf(), mutableListOf("비정상적인 접근입니다.")))
+        commentService.delete(id)
         return ResponseEntity.ok().body(CommentResponse(mutableListOf(), mutableListOf()))
     }
 }

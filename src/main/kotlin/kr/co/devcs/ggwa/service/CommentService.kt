@@ -12,6 +12,8 @@ class CommentService(
     @Autowired private val commentRepository: CommentRepository
 ) {
     fun findByMeeting(meeting: Meeting) = commentRepository.findByMeeting(meeting)
+    fun findById(id: Long) = commentRepository.findById(id)
+    fun checkById(id: Long) = commentRepository.existsById(id)
     fun create(meeting: Meeting, member: Member, content: String) {
         val comment: Comment = Comment(
             content = content,
@@ -19,5 +21,8 @@ class CommentService(
             member = member
             )
         commentRepository.save(comment)
+    }
+    fun delete(id: Long) {
+        commentRepository.deleteById(id)
     }
 }
