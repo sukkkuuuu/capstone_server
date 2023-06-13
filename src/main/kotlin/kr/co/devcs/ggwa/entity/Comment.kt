@@ -10,7 +10,9 @@ class Comment(
     val content: String,
     val createdDate: LocalDateTime = LocalDateTime.now(),
     @ManyToOne
-    val meeting: Meeting,
+    val meeting: Meeting?,
+    @ManyToOne
+    val learning: Learning?,
     @ManyToOne
     val member: Member
 )
